@@ -106,16 +106,22 @@ $ ./gen-log.sh -d version
 * -d	设置输出目录；默认：log
 
 ### Usage
- * 命令行进入项目根目录
- * 执行`./gen-log.sh`
+ * 打开终端，执行
+
+ `cd ~/Downloads && git clone git@github.com:GiantZero-x/proj-gen-git-log.git && ./proj-gen-git-log && chmod +x gen-log.sh`
+
+ * 执行`./gen-log.sh -r <path-to-your-repository>`
  * 自动在`log`文件夹(若无会自动创建)下生成{user}.md文件
 
+### Advanced
+```bash
+# 输出 someone 2018年1月1日至2018年1月31日commit记录至./git-log/someone.md文件中，若已存在该文件直接覆盖
+./gen-log.sh -r <path-to-your-repository> -a someone -s 2018-01-01 -e 2018-01-31 -d git-log -f
+```
 ### Caution
  * 每个版本需**修改`package.json`版本号**
- * 尽可能**保证功能分支commit message简明扼要并且没有无意义commit**(建议提测前rebase，可参考[Git常规操作](https://note.youdao.com/share/?id=b423064d79fb2f975165d3fc5a79ae5d&type=note#/))
- * 提交MR将`develop`合入`master`**前**执行命令
- * 代码合并后新增tag，复制粘贴log文件内容即可
+ * 尽可能**保证功能分支commit message简明扼要并且没有无意义commit
+ * 对比模式需要两个分支都存在本地
 
 ### Other
-* 可直接执行`.sh`文件，报错提示无权限需要执行`chmod 755 ./gen-log.sh`
 * 根据配置项可生成各种git记录，欢迎优化拓展
