@@ -96,7 +96,7 @@ $ ./gen-log.sh -d version
 
 ### Options
 * -a	贡献者；默认：git 全局配置 name；可传 '' 表示所有贡献者
-* -s	起始时间；默认：上周一
+* -s	起始时间；默认：上周一
 * -e	终止时间；默认：当天
 * -o	设置比对分支源分支名；默认当前分支
 * -r	本地项目路径；默认当前目录
@@ -113,7 +113,7 @@ $ ./gen-log.sh -d version
  * 执行`./gen-log.sh -r <path-to-your-repository>`
  * 自动在`log`文件夹(若无会自动创建)下生成{user}.md文件
 
-### Advanced
+### Advanced
 ```bash
 # 输出 someone 2018年1月1日至2018年1月31日commit记录至./git-log/someone.md文件中，若已存在该文件直接覆盖
 ./gen-log.sh -r <path-to-your-repository> -a someone -s 2018-01-01 -e 2018-01-31 -d git-log -f
