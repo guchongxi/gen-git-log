@@ -14,14 +14,12 @@
 # -f	to set fouce gen file
 # -d	to set output dir
 
-# 作者，默认git全局配置name
+# 提交人，默认git全局配置name
 AUTHOR=$(git config user.name)
 # 起始时间，默认上周一
 SINCE="last.Monday"
 # 终止时间，默认当天
 UNTIL=$(date +%F)
-# 格式化
-LOG_FORMAT=" %Cgreen*%Creset %s"
 # 输出目录
 OUTPUT_DIR="log"
 # commit比对，源分支，当前分支
@@ -93,6 +91,19 @@ do
     ;;
   esac
 done
+# 远程地址
+REMOTE=$(git -C "${REPO}" remote -v)
+REMOTE=${REMOTE#*git@}
+REMOTE=${REMOTE%%.git*}
+REMOTE=${REMOTE/://}
+# 格式化 https://ruby-china.org/topics/939
+# %h: 缩短的commit hash
+# %an: 提交人名字
+# %ae: 提交人邮箱
+# %cr: 提交日期, 相对格式(1 day ago)
+# %d: ref名称
+# %s: commit信息标题
+FORMAT_DEFAULT=" * %s ([%h](http://${REMOTE}/commit/%H)) "
 
 # 指定目录但不存在则创建
 if [ ! -z $OUTPUT_DIR -a ! -e $OUTPUT_DIR ]
@@ -100,22 +111,27 @@ then
   mkdir $OUTPUT_DIR
 fi
 
-# 判断作者
+# 判断提交人
 if [ -z $AUTHOR ]
 then
-  # 作者为空
-  LOG_FORMAT="$LOG_FORMAT %Cblue(%an)%Creset"
+  # 提交人为空
+  LOG_FORMAT="$FORMAT_DEFAULT <%an>"
   
   # 输出文件路径，默认“当前日期.md”
   OUTPUT="${OUTPUT_DIR}/$(date +%F).md"
 else
-  # 输出文件路径，默认“作者名.md”
+  # 有提交人
+  LOG_FORMAT="$FORMAT_DEFAULT - %cr"
+  
+  # 输出文件路径，默认“提交人名.md”
   OUTPUT="${OUTPUT_DIR}/${AUTHOR}.md"
 fi
 
 # 判断是否使用commit比对模式
 if [ $ORIGIN != $TARGET ]
 then
+  LOG_FORMAT="$FORMAT_DEFAULT @%ae"
+  
   # 抓取版本
   while read line
   do
@@ -168,6 +184,7 @@ then
             then
               # 裁剪字符串
               s=${s##*${reg}}
+              s=${s%@*}
               # 移除空格
               s=$(trim $s)
               # 动态数组变量赋值
@@ -206,6 +223,7 @@ then
       echo "${DIFF}版本无差异"
     fi
   ) > $OUTPUT
+  # ) | less -R
 else
   shouldFouceResolve
   
@@ -220,7 +238,8 @@ else
       fi
     done
   ) > $OUTPUT
+  # ) | less -R
+  # )
 fi
-# | less -R
 
 echo "Log has been written to '${OUTPUT}'"
