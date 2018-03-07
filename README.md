@@ -1,5 +1,8 @@
 # 生成 Git 日志
 自动生成git commit记录用以统计个人项目周报，全组项目周报，版本差异记录等
+<p align="center">
+ <img src="https://img.shields.io/badge/npm-v1.0.2-orange.svg" />
+</p>
 
  [GitHub](https://github.com/GiantZero-x/proj-gen-git-log)
 
@@ -8,7 +11,10 @@
 
  Or
 
- `yarn global add gen-git-log`
+ `cd ~/Downloads && git clone git@github.com:GiantZero-x/gen-git-log.git && ./gen-git-log && chmod +x gen-log.sh`	
+ 
+ * 执行`./gen-log.sh -r <path-to-your-repository>`	
+ * 自动在`log`文件夹(若无会自动创建)下生成{user}.md文件
 
 ### 示例
 #### 生成个人周报  ->  xxx.md
@@ -81,7 +87,7 @@
 ```
 
 ### 配置
-* -a	贡献者；默认：`git` 全局配置 `name`；可传 '' 表示所有贡献者
+* -a	贡献者；默认：`git` 全局配置 `name`；可传 '' 表示所有贡献者
 * -s	起始时间；默认：上周一
 * -e	终止时间；默认：当天
 * -o	设置比对分支源分支名；默认当前分支
@@ -102,4 +108,6 @@
  * 对比模式需要两个分支都在本地存在
 
 ### 其他
+* 团队周报中贡献者姓名为贡献者`git` 全局配置 `name`
+* 版本日志中`@`后紧随贡献者`git` 全局配置 `email`用户名(即不包含@xx.xx)
 * 根据配置项可生成各种git记录，欢迎优化拓展
