@@ -11,8 +11,8 @@
  `yarn global add gen-git-log`
 
 ### 示例
+#### 生成个人周报  ->  xxx.md
 ```bash
-# 生成个人周报  ->  xxx.md
 ➜ gen-git-log (master) $ git-log
 
 # [2018-03-06]
@@ -24,14 +24,13 @@
 #  * fix: 医院xxx ([38c958f8](http://xxx.xxx.xxx/xxx/xxx/commit/38c958f891ef4c78b66b53caf455dabca11b227e))  - 8 hours ago
 #  * chore: 发布xxx ([60cec8c0](http://xxx.xxx.xxx/xxx/xxx/commit/60cec8c03a160cc43063e16331e462401ea6390b))  - 4 hours ago
 ```
-
+#### 生成个人周报覆盖已有文件
 ```bash
-# 生成个人周报覆盖已有文件
 ➜  gen-git-log (master) $ git-log -f
 ```
 
+#### 生成团队周报  ->  20xx.xx.xx.md
 ```bash
-# 生成团队周报  ->  20xx.xx.xx.md
 ➜  gen-git-log (master) $ git-log -a ''
 
 # [2018-03-06]
@@ -46,8 +45,8 @@
 #  * feat: 完成xxx ([575001fb](http://xxx.xxx.xxx/xxx/xxx/commit/575001fb0a904bd6b900da9afbd6da28fb8aea05))  <xxx>
 ```
 
+#### 生成待发布版本信息 ->  vx.x.x.md
 ```bash
-# 生成待发布版本信息 ->  vx.x.x.md
 ➜  gen-git-log (master) $ git-log -a '' -t master -o develop
 
 # > 2018-03-07
@@ -76,8 +75,8 @@
 # * xxx ([c23cb128](http://xxx.xxx.xxx/xxx/xxx/commit/c23cb128627d6811688b34dc2b7ea87ce6b515cb))  @ooo
 ```
 
+#### 生成在 version 目录下
 ```bash
-# 生成目录为version
 ➜  gen-git-log (master) $ git-log -d version
 ```
 
@@ -93,14 +92,14 @@
 * -d	设置输出目录；默认：`log`
 
 ### 高级
+#### xx仓库 someone 2018年1月1日至2018年1月31日commit记录至./git-log/someone.md文件中，若已存在该文件直接覆盖
 ```bash
-# 输出 xx仓库 someone 2018年1月1日至2018年1月31日commit记录至./git-log/someone.md文件中，若已存在该文件直接覆盖
-git-log -r <path-to-your-repository> -a someone -s 2018-01-01 -e 2018-01-31 -d git-log -f
+➜  gen-git-log (master) $ git-log -r <path-to-your-repository> -a someone -s 2018-01-01 -e 2018-01-31 -d git-log -f
 ```
 ### 注意
  * 生成版本差异建议先**修改`package.json`版本号**
  * 尽可能**保证功能分支commit message精简扼要**
  * 对比模式需要两个分支都在本地存在
-
-### Other
+
+### 其他
 * 根据配置项可生成各种git记录，欢迎优化拓展
