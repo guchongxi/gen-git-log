@@ -1,0 +1,22 @@
+{
+  "name": "proj-gen-git-log",
+  "version": "1.0.0",
+  "description": "自动生成git commit记录用以统计个人项目周报，全组项目周报，版本差异记录等 [GitHub](https://github.com/GiantZero-x/proj-gen-git-log)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GiantZero-x/proj-gen-git-log.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/GiantZero-x/proj-gen-git-log/issues"
+  },
+  "homepage": "https://github.com/GiantZero-x/proj-gen-git-log#readme",
+  "bin": {
+    "gen-log": "./gen-log.sh"
+  }
+}
