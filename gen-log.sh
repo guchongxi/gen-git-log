@@ -240,7 +240,7 @@ case $MODE in
     fi
 
     # 直接使用分支比对查找所有匹配 log
-    GIT_PAGER=$(git -C "${REPO}" log "$SOURCE..$TARGET" --no-merges --reverse --format="${LOG_FORMAT}")
+    GIT_PAGER=$(git -C "${REPO}" log "$SOURCE...$TARGET" --no-merges --reverse --format="${LOG_FORMAT}")
 
     (
       printTimeIfNeed
@@ -317,7 +317,7 @@ case $MODE in
     shouldFouceResolve
 
     # 获取最新标签
-    LASTEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
+    LASTEST_TAG=$(git -C "${REPO}" describe --tags `git -C "${REPO}" rev-list --tags --max-count=1`)
 
     if [ -z $SOURCE ]
     then
