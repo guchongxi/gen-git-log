@@ -1,165 +1,67 @@
 
 #!/bin/bash
 
-# Generates git changelog
-#
-# optional parameters
-# -a  to filter by author
-# -s  to select start date
-# -e  to select end date
-# -o  to select origin branch
-# -t  to select target branch
-# -O  to select origin tag
-# -T  to select target tag
-# -r  to specify the repository path
-# -v  to set version number
-# -f  to set fouce gen file
-# -d  to set output dir
-# -h  to get help
+# 自动生成 Git 日志脚本
+# feature
+# * 可生成(本人:默认/其他人/团队)(任意时间段/上周:默认)(任意项目/当前项目:默认)日志
+# * 可控制是否覆盖已有文件
+# * 可控制是否显示生成时间
+# * 可指定分支比对和版本比对模式
+# * 比对模式可(指定/读取package.json：默认)版本生成对应文件名
+# * 分支比对模式可指定比对分支(当前:默认)
+# * 版本比对模式可指定比对版本(源版本/HEAD:默认、目标版本/最新版本:默认)
 
-# 提交人，默认git全局配置name
-AUTHOR=$(git config user.name)
-# 起始时间，默认上周一
-SINCE="last.Monday"
-# 终止时间，默认当天
-UNTIL=$(date +%F)
-# 输出目录
-OUTPUT_DIR="log"
-# commit比对，源分支，当前分支
-ORIGIN_BRANCH="$(git rev-parse --abbrev-ref HEAD)"
-# commit比对，目标分支，默认当前分支
-TARGET_BRANCH=$ORIGIN_BRANCH
 # commit 类型 键
 TYPE_MAP=(feat fix refactor style docs chore)
 # commit 类型 值
 TYPE_TITLE_MAP=(新增 修改 重构 样式 文档 其他)
-# 强制生成文件
+# 作者
+AUTHOR=$(git config user.name)
+# 当前日期+时间
+NOW=$(date "+%F %H:%M")
+# 起始日期
+SINCE="last.Monday"
+# 终止日期
+UNTIL=$(date +%F)
+# 是否覆盖文件
 FOUCE=0
-# 是否打印时间
-PRINT_TIME=1
-# tag比对，源tag
-ORIGIN_TAG="$(git describe --tags `git rev-list --tags --max-count=1`)"
-# tag比对，目标tag
-TARGET_TAG=$ORIGIN_TAG
+# 首行是否为生成日期
+PRINT_TIME=0
+# 输出目录
+OUTPUT_DIR="log"
 
 # function，去除字符串两头空格
-trim()
-{
+trim() {
   trimmed=$1
   trimmed=${trimmed%% }
   trimmed=${trimmed## }
-  
+
   echo $trimmed
 }
-shouldFouceResolve()
-{
-  # 检查文输出件存在 & 不强制生成 则退出
+# function，是否强制生成文件
+shouldFouceResolve() {
+  # 输出文件已存在 & 不强制生成 则提示并退出
   if [ -e $OUTPUT -a $FOUCE -eq 0 ]
   then
-    echo "${OUTPUT} already exists! \nPlease update package.json or remove log file or add '-f' follow the command!\n"
+    echo "${OUTPUT} already exists! \n
+      Please update package.json or remove log file or add '-f' follow the command!\n
+    "
     exit 1
   fi
 }
-
-# 传参覆盖默认值
-while getopts "a:s:e:o:d:r:t:v:fh" arg
-do
-  case $arg in
-    a)
-      AUTHOR=$OPTARG
-    ;;
-    s)
-      SINCE=$OPTARG
-    ;;
-    e)
-      UNTIL=$OPTARG
-    ;;
-    o)
-      ORIGIN_BRANCH=$OPTARG
-    ;;
-    r)
-      REPO=$OPTARG
-    ;;
-    t)
-      TARGET_BRANCH=$OPTARG
-    ;;
-    v)
-      VERSION=$OPTARG
-    ;;
-    f)
-      FOUCE=1
-    ;;
-    d)
-      OUTPUT_DIR=$OPTARG
-    ;;
-    h)
-      echo "
-  Usage:\n
-    git-log [options]\n
-
-  Options:\n
-    -a,  to filter by author
-    -s,  to select start date
-    -e,  to select end date
-    -o,  to select origin branch
-    -r,  to specify the repository path
-    -t,  to select target branch
-    -v,  to set version number
-    -f,  to set fouce gen file
-    -d,  to set output dir
-      "
-      exit 1
-    ;;
-    ?)
-      echo "unknown argument"
-      exit 1
-    ;;
-  esac
-done
-# 远程地址
-REMOTE=$(git -C "${REPO}" remote -v)
-REMOTE=${REMOTE#*git@}
-REMOTE=${REMOTE%%.git*}
-REMOTE=${REMOTE/://}
-# 格式化 https://ruby-china.org/topics/939
-# %H: commit hash
-# %h: 缩短的commit hash
-# %an: 提交人名字
-# %ae: 提交人邮箱
-# %cr: 提交日期, 相对格式(1 day ago)
-# %d: ref名称
-# %s: commit信息标题
-FORMAT_DEFAULT=" * %s ([%h](http://${REMOTE}/commit/%H)) "
-
-# 指定目录但不存在则创建
-if [ ! -z $OUTPUT_DIR -a ! -e $OUTPUT_DIR ]
-then
-  mkdir $OUTPUT_DIR
-fi
-
-# 判断提交人
-if [ -z $AUTHOR ]
-then
-  # 提交人为空
-  LOG_FORMAT="$FORMAT_DEFAULT <%an>"
-  
-  # 输出文件路径，默认“当前日期.md”
-  OUTPUT="${OUTPUT_DIR}/$(date +%F).md"
-else
-  # 有提交人
-  LOG_FORMAT="$FORMAT_DEFAULT - %cr"
-  
-  # 输出文件路径，默认“提交人名.md”
-  OUTPUT="${OUTPUT_DIR}/${AUTHOR}.md"
-fi
-
-# 判断是否使用commit比对模式
-if [ $ORIGIN_BRANCH != $TARGET_BRANCH ]
-then
-  LOG_FORMAT="$FORMAT_DEFAULT @%ae"
-  
+# function，首行是否输出生成日期
+printTimeIfNeed(){
+  if [ $PRINT_TIME -eq 1 ]
+  then
+    echo "> Generated on ${NOW} By [Gen-Git-Log](https://www.npmjs.com/package/gen-git-log)\n"
+  fi
+}
+# function，获取版本
+getVersion() {
+  # 判断是否自定义版本
   if [ -z $VERSION ]
   then
+    # 未传入版本
     if [ -z $REPO ]
     then
       # 没有传repo则package文件为当前目录所有
@@ -167,7 +69,7 @@ then
     else
       PKG_PATH="${REPO}/package.json"
     fi
-    
+
     # 自定义version为空时抓取版本
     while read line
     do
@@ -185,87 +87,327 @@ then
       fi
     done < $PKG_PATH
   fi
-  
+
+  echo $VERSION
+}
+# function，生成输出文件路径
+generateOutPutPath() {
   # 输出文件路径，默认“v版本.md”
-  OUTPUT="${OUTPUT_DIR}/v${VERSION}.md"
-  
-  shouldFouceResolve
-  
-  GIT_PAGER=$(git -C "${REPO}" log "$TARGET_BRANCH..$ORIGIN_BRANCH" --no-merges --reverse --format="${LOG_FORMAT}")
-  (
-    if [ ! -z "$GIT_PAGER" ]
-    then
-      # 字符串分隔符
-      IFS="*"
-      # 分割字符串为数组
-      arr=($GIT_PAGER)
-      # 还原分割符，否则会导致if判断失效
-      IFS=""
-      # 循环处理数组
-      for s in ${arr[@]}
-      do
-        # 去除字符串两头空格
-        s=$(trim $s)
-        # 判断字符串非空
-        if [ ! -z $s ]
-        then
-          # 替换全角冒号
-          s=${s/：/:}
-          # 循环commit 类型
-          for type in ${TYPE_MAP[@]}
-          do
-            # 组织正则
-            reg="${type}:"
-            # 判断commit类型
-            if [[ ${s} = *"${reg}"* ]]
-            then
-              # 裁剪字符串
-              s=${s##*${reg}}
-              s=${s%@*}
-              # 移除空格
-              s=$(trim $s)
-              # 动态数组变量赋值
-              eval COMMIT_${type}='(${COMMIT_'${type}'[*]} $s)'
-              break
-            fi
-          done
-        fi
-      done
-      
-      if [ $PRINT_TIME -eq 1 ]
-      then
-        echo "> ${UNTIL}\n"
-      fi
-      
-      # 处理数据
-      typeIndex=0
-      for type in ${TYPE_MAP[@]}
-      do
-        # 拷贝数组
-        eval type='(${COMMIT_'${type}'[*]})'
-        
-        if [ ${#type[*]} != 0 ]
-        then
-          echo "#### ${TYPE_TITLE_MAP[$typeIndex]}"
-          
-          for i in ${type[@]}
-          do
-            echo "* ${i}"
-          done
-          echo
-        fi
-        let typeIndex++
-      done
-    else
-      echo "${TARGET_BRANCH}..${ORIGIN_BRANCH} 版本无差异"
-    fi
-  ) > $OUTPUT
-  # ) | less -R
+  echo "${OUTPUT_DIR}/v$(getVersion).md"
+}
+
+# 传参覆盖默认值
+while getopts "m:a:s:u:S:T:r:v:ftd:h" arg
+do
+  case $arg in
+    m)
+      # 模式
+      MODE=$OPTARG
+    ;;
+    a)
+      # 作者
+      AUTHOR=$OPTARG
+    ;;
+    s)
+      # 起始日期
+      SINCE=$OPTARG
+    ;;
+    u)
+      # 终止日期
+      UNTIL=$OPTARG
+    ;;
+    S)
+      # 源分支/标签
+      SOURCE=$OPTARG
+    ;;
+    T)
+      # 目标分支/标签
+      TARGET=$OPTARG
+    ;;
+    r)
+      # Git 仓库本地路径
+      REPO=$OPTARG
+    ;;
+    v)
+      # 自定义版本
+      VERSION=$OPTARG
+    ;;
+    f)
+      # 强制覆盖文件
+      FOUCE=1
+    ;;
+    t)
+      # 首行输出生成日期
+      PRINT_TIME=1
+    ;;
+    d)
+      # 输出目录路径
+      OUTPUT_DIR=$OPTARG
+    ;;
+    h)
+      echo "
+  Usage:\n
+    git-log [options]\n
+
+  Options:\n
+    -m  生成模式  默认：无(周报)，可选：branch(分支比对)、tag(标签比对)
+    -a  想要过滤的作者  默认：$(git config user.name)
+    -s  起始日期  默认：上周一，格式：2018-01-01
+    -u  终止日期  默认：当天，格式：2018-01-01
+    -S  源分支/标签 默认：无，比对模式：当前分支/最近标签
+    -T  目标分支/标签 默认：无，比对模式：当前分支/当前HEAD
+    -r  Git 仓库本地路径  默认：当前目录
+    -v  版本号  默认：无，比对模式：仓库路径下 package.json 中 VERSION 字段值
+    -f  覆盖文件  默认：否，不需要传值
+    -t  log 首行为生成日期  默认：否，不需要传值
+    -d  log 输出目录 默认：仓库路径下 log 文件夹
+      "
+      exit 1
+    ;;
+    ?)
+      echo "unknown argument"
+      exit 1
+    ;;
+  esac
+done
+
+# 获取远程仓库地址
+REMOTE=$(git -C "${REPO}" remote -v)
+REMOTE=${REMOTE#*git@}
+REMOTE=${REMOTE%%.git*}
+REMOTE=${REMOTE/://}
+
+# 格式化 https://ruby-china.org/topics/939
+# %H:   commit hash
+# %h:   短commit hash
+# %an:  提交人名字
+# %ae:  提交人邮箱
+# %cr:  提交日期, 相对格式(1 day ago)
+# %d:   ref名称
+# %s:   commit信息标题
+# %cd:  提交日期 (--date= 制定的格式)
+FORMAT_DEFAULT=" * %s ([%h](http://${REMOTE}/commit/%H)) "
+
+# 判断是否指定仓库路径重写输出目录路径
+if [ -z $REPO ]
+then
+  OUTPUT_DIR="./${OUTPUT_DIR}"
 else
-  shouldFouceResolve
-  
-  (
-    git -C "${REPO}" log --since="${SINCE}" --until="${UNTIL}" --format="%cd" --date=short | sort -u | while read DATE ; do
+  OUTPUT_DIR="${REPO}/${OUTPUT_DIR}"
+fi
+
+
+# 指定目录路径不存在则创建
+if [ ! -e $OUTPUT_DIR ]
+then
+  mkdir $OUTPUT_DIR
+fi
+
+# 判断提交人，设定输出路径
+if [ -z $AUTHOR ]
+then
+  # 提交人为空
+  LOG_FORMAT="$FORMAT_DEFAULT <%an>"
+
+  # 输出文件路径，默认“当前日期.md”
+  OUTPUT="${OUTPUT_DIR}/$(date +%F).md"
+else
+  # 有提交人
+  LOG_FORMAT="$FORMAT_DEFAULT - %cr"
+
+  # 输出文件路径，默认“提交人名.md”
+  OUTPUT="${OUTPUT_DIR}/${AUTHOR}.md"
+fi
+
+case $MODE in
+  branch)
+    LOG_FORMAT="$FORMAT_DEFAULT @%ae"
+
+    OUTPUT=$(generateOutPutPath)
+
+    shouldFouceResolve
+
+    # 默认分支为当前分支
+    CURRENT_BRANCH=$(git -C "${REPO}" rev-parse --abbrev-ref HEAD)
+
+    if [ -z $SOURCE ]
+    then
+      SOURCE=$CURRENT_BRANCH
+    fi
+    if [ -z $TARGET ]
+    then
+      TARGET=$CURRENT_BRANCH
+    fi
+
+    # 直接使用分支比对查找所有匹配 log
+    GIT_PAGER=$(git -C "${REPO}" log "$SOURCE..$TARGET" --no-merges --reverse --format="${LOG_FORMAT}")
+
+    (
+      printTimeIfNeed
+
+      if [ ! -z "$GIT_PAGER" ]
+      then
+        # 字符串分隔符
+        IFS="*"
+        # 分割字符串为数组
+        arr=($GIT_PAGER)
+        # 还原分割符，否则会导致if判断失效
+        IFS=""
+        # 循环处理数组
+        for s in ${arr[@]}
+        do
+          # 去除字符串两头空格
+          s=$(trim $s)
+          # 判断字符串非空
+          if [ ! -z $s ]
+          then
+            # 替换全角冒号
+            s=${s/：/:}
+            # 循环commit 类型
+            for type in ${TYPE_MAP[@]}
+            do
+              # 组织正则
+              reg="${type}:"
+              # 判断commit类型
+              if [[ ${s} = *"${reg}"* ]]
+              then
+                # 裁剪字符串
+                s=${s##*${reg}}
+                s=${s%@*}
+                # 移除空格
+                s=$(trim $s)
+                # 动态数组变量赋值
+                eval COMMIT_${type}='(${COMMIT_'${type}'[*]} $s)'
+                break
+              fi
+            done
+          fi
+        done
+
+        # 处理数据
+        typeIndex=0
+        for type in ${TYPE_MAP[@]}
+        do
+          # 拷贝数组
+          eval type='(${COMMIT_'${type}'[*]})'
+
+          # 判断数组是否含有元素
+          if [ ${#type[*]} != 0 ]
+          then
+            echo "#### ${TYPE_TITLE_MAP[$typeIndex]}"
+
+            for i in ${type[@]}
+            do
+              echo "* ${i}"
+            done
+            echo
+          fi
+          let typeIndex++
+        done
+      else
+        echo "${SOURCE}...${TARGET} 分支无差异"
+      fi
+    ) > $OUTPUT
+  ;;
+  tag)
+    LOG_FORMAT="$FORMAT_DEFAULT @%ae"
+
+    OUTPUT=$(generateOutPutPath)
+
+    shouldFouceResolve
+
+    # 获取最新标签
+    LASTEST_TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
+
+    if [ -z $SOURCE ]
+    then
+      SOURCE="HEAD"
+    fi
+    if [ -z $TARGET ]
+    then
+      TARGET=$LASTEST_TAG
+    fi
+
+    # 直接使用分支比对查找所有匹配 log
+    GIT_PAGER=$(git -C "${REPO}" log "$SOURCE...$TARGET" --no-merges --reverse --format="${LOG_FORMAT}")
+
+    (
+      printTimeIfNeed
+
+      if [ ! -z "$GIT_PAGER" ]
+      then
+        # 字符串分隔符
+        IFS="*"
+        # 分割字符串为数组
+        arr=($GIT_PAGER)
+        # 还原分割符，否则会导致if判断失效
+        IFS=""
+        # 循环处理数组
+        for s in ${arr[@]}
+        do
+          # 去除字符串两头空格
+          s=$(trim $s)
+          # 判断字符串非空
+          if [ ! -z $s ]
+          then
+            # 替换全角冒号
+            s=${s/：/:}
+            # 循环commit 类型
+            for type in ${TYPE_MAP[@]}
+            do
+              # 组织正则
+              reg="${type}:"
+              # 判断commit类型
+              if [[ ${s} = *"${reg}"* ]]
+              then
+                # 裁剪字符串
+                s=${s##*${reg}}
+                s=${s%@*}
+                # 移除空格
+                s=$(trim $s)
+                # 动态数组变量赋值
+                eval COMMIT_${type}='(${COMMIT_'${type}'[*]} $s)'
+                break
+              fi
+            done
+          fi
+        done
+
+        echo "## [v$(getVersion)](http://${REMOTE}/compare/${TARGET}...${SOURCE})"
+
+        # 处理数据
+        typeIndex=0
+        for type in ${TYPE_MAP[@]}
+        do
+          # 拷贝数组
+          eval type='(${COMMIT_'${type}'[*]})'
+
+          # 判断数组是否含有元素
+          if [ ${#type[*]} != 0 ]
+          then
+            echo "#### ${TYPE_TITLE_MAP[$typeIndex]}"
+
+            for i in ${type[@]}
+            do
+              echo "* ${i}"
+            done
+            echo
+          fi
+          let typeIndex++
+        done
+      else
+        echo "${TARGET}...${SOURCE} 版本无差异"
+      fi
+    ) > $OUTPUT
+  ;;
+  *)
+    shouldFouceResolve
+
+    (
+      printTimeIfNeed
+      # 先根据起始及终止时间查找符合条件的log并且把日期格式化后输出
+      # 之后遍历所有输出的日期，在根据日期查询当天内的log进行打印
+      git -C "${REPO}" log --since="${SINCE}" --until="${UNTIL}" --format="%cd" --date=short | sort -u | while read DATE ; do
       GIT_PAGER=$(git -C "${REPO}" log --no-merges --reverse --format="${LOG_FORMAT}" --since="${DATE} 00:00:00" --until="${DATE} 23:59:59" --author="${AUTHOR}")
       if [ ! -z "$GIT_PAGER" ]
       then
@@ -274,9 +416,8 @@ else
         echo
       fi
     done
-  ) > $OUTPUT
-  # ) | less -R
-  # )
-fi
+    ) > $OUTPUT
+  ;;
+esac
 
 echo "Log has been written to '${OUTPUT}'"
