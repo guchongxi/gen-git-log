@@ -1,16 +1,34 @@
 # 生成 Git 日志
-自动生成git commit记录用以统计个人项目周报，全组项目周报，版本差异记录等
+自动生成git commit记录用以统计个人项目周报，全组项目周报，版本、分支差异记录等
 
-![](https://img.shields.io/badge/npm-v1.0.2-orange.svg)
+### 功能
+  * 可生成(本人:默认/其他人/团队)(任意时间段/上周:默认)(任意项目/当前项目:默认)日志
+  * 可控制是否覆盖已有文件
+  * 可控制是否显示生成时间
+  * 可指定分支比对和版本比对模式
+  * 比对模式可(指定/读取package.json：默认)版本生成对应文件名
+  * 分支比对模式可指定比对分支(当前:默认)
+  * 版本比对模式可指定比对版本(源版本/HEAD:默认、目标版本/最新版本:默认)
 
- [GitHub](https://github.com/GiantZero-x/proj-gen-git-log)
+### 配置项
+  * -m  生成模式  默认：无(周报)，可选：branch(分支比对)、tag(标签比对)
+  * -a  贡献者；默认：`git` 全局配置 `name`；可传 '' 表示所有贡献者
+  * -s  起始日期  默认：上周一，格式：2018-01-01
+  * -u  终止日期  默认：当天，格式：2018-01-01
+  * -S  源分支/标签 默认：无，比对模式：当前分支/最近标签
+  * -T  目标分支/标签 默认：无，比对模式：当前分支/当前HEAD
+  * -r  Git 仓库本地路径  默认：当前目录
+  * -v  版本号  默认：无，比对模式：仓库路径下 package.json 中 VERSION 字段值
+  * -f  覆盖文件  默认：否，不需要传值
+  * -t  log 首行为生成日期  默认：否，不需要传值
+  * -d  log 输出目录 默认：仓库路径下 log 文件夹
 
 ### 使用
- `npm install gen-git-log -g`
+ `npm install gen-git-log -D`
 
  Or
 
- `cd ~/Downloads && git clone git@github.com:GiantZero-x/gen-git-log.git && ./gen-git-log && chmod +x gen-log.sh`
+ `cd ~/Downloads && git clone git@github.com:guchongxi/gen-git-log.git && ./gen-git-log && chmod +x gen-log.sh`
 
  * 执行`./gen-log.sh -r <path-to-your-repository>`
  * 自动在`log`文件夹(若无会自动创建)下生成{user}.md文件
@@ -85,17 +103,6 @@
 ➜  gen-git-log (master) $ git-log -d version
 ```
 
-### 配置
-* -a	贡献者；默认：`git` 全局配置 `name`；可传 '' 表示所有贡献者
-* -s	起始时间；默认：上周一
-* -e	终止时间；默认：当天
-* -o	设置比对分支源分支名；默认当前分支
-* -t	设置比对分支目标分支名；默认当前分支
-* -r	本地项目路径；默认当前目录
-* -v	设置比对版本；默认`package.json`中`version`字段值
-* -f	设置是否强制覆盖已有文件；默认：不覆盖
-* -d	设置输出目录；默认：`log`
-
 ### 高级
 #### xx仓库 someone 2018年1月1日至2018年1月31日commit记录至./git-log/someone.md文件中，若已存在该文件直接覆盖
 ```bash
@@ -104,7 +111,7 @@
 ### 注意
  * 生成版本差异建议先**修改`package.json`版本号**
  * 尽可能**保证功能分支commit message精简扼要**
- * 对比模式需要两个分支都在本地存在
+ * 分支对比模式需要两个分支都在本地存在
 
 ### 其他
 * 团队周报中贡献者姓名为贡献者`git` 全局配置 `name`
