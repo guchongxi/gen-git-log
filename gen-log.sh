@@ -4,15 +4,18 @@
 # Generates git changelog
 #
 # optional parameters
-# -a	to filter by author
-# -s	to select start date
-# -e	to select end date
-# -o	to select origin branch
-# -r	to specify the repository path
-# -t	to select target branch
-# -v	to set version number
-# -f	to set fouce gen file
-# -d	to set output dir
+# -a  to filter by author
+# -s  to select start date
+# -e  to select end date
+# -o  to select origin branch
+# -t  to select target branch
+# -O  to select origin tag
+# -T  to select target tag
+# -r  to specify the repository path
+# -v  to set version number
+# -f  to set fouce gen file
+# -d  to set output dir
+# -h  to get help
 
 # 提交人，默认git全局配置name
 AUTHOR=$(git config user.name)
@@ -23,9 +26,9 @@ UNTIL=$(date +%F)
 # 输出目录
 OUTPUT_DIR="log"
 # commit比对，源分支，当前分支
-ORIGIN="$(git rev-parse --abbrev-ref HEAD)"
+ORIGIN_BRANCH="$(git rev-parse --abbrev-ref HEAD)"
 # commit比对，目标分支，默认当前分支
-TARGET=$ORIGIN
+TARGET_BRANCH=$ORIGIN_BRANCH
 # commit 类型 键
 TYPE_MAP=(feat fix refactor style docs chore)
 # commit 类型 值
@@ -34,6 +37,10 @@ TYPE_TITLE_MAP=(新增 修改 重构 样式 文档 其他)
 FOUCE=0
 # 是否打印时间
 PRINT_TIME=1
+# tag比对，源tag
+ORIGIN_TAG="$(git describe --tags `git rev-list --tags --max-count=1`)"
+# tag比对，目标tag
+TARGET_TAG=$ORIGIN_TAG
 
 # function，去除字符串两头空格
 trim()
@@ -55,7 +62,7 @@ shouldFouceResolve()
 }
 
 # 传参覆盖默认值
-while getopts "a:s:e:o:d:r:t:v:f" arg
+while getopts "a:s:e:o:d:r:t:v:fh" arg
 do
   case $arg in
     a)
@@ -68,13 +75,13 @@ do
       UNTIL=$OPTARG
     ;;
     o)
-      ORIGIN=$OPTARG
+      ORIGIN_BRANCH=$OPTARG
     ;;
     r)
       REPO=$OPTARG
     ;;
     t)
-      TARGET=$OPTARG
+      TARGET_BRANCH=$OPTARG
     ;;
     v)
       VERSION=$OPTARG
@@ -84,6 +91,24 @@ do
     ;;
     d)
       OUTPUT_DIR=$OPTARG
+    ;;
+    h)
+      echo "
+  Usage:\n
+    git-log [options]\n
+
+  Options:\n
+    -a,  to filter by author
+    -s,  to select start date
+    -e,  to select end date
+    -o,  to select origin branch
+    -r,  to specify the repository path
+    -t,  to select target branch
+    -v,  to set version number
+    -f,  to set fouce gen file
+    -d,  to set output dir
+      "
+      exit 1
     ;;
     ?)
       echo "unknown argument"
@@ -97,6 +122,7 @@ REMOTE=${REMOTE#*git@}
 REMOTE=${REMOTE%%.git*}
 REMOTE=${REMOTE/://}
 # 格式化 https://ruby-china.org/topics/939
+# %H: commit hash
 # %h: 缩短的commit hash
 # %an: 提交人名字
 # %ae: 提交人邮箱
@@ -128,33 +154,44 @@ else
 fi
 
 # 判断是否使用commit比对模式
-if [ $ORIGIN != $TARGET ]
+if [ $ORIGIN_BRANCH != $TARGET_BRANCH ]
 then
   LOG_FORMAT="$FORMAT_DEFAULT @%ae"
   
-  # 抓取版本
-  while read line
-  do
-    # 抓取定义version行文本
-    if [[ ${line} = *"version"* ]]
+  if [ -z $VERSION ]
+  then
+    if [ -z $REPO ]
     then
-      # 移除双引号
-      VERSION=${line//\"/ }
-      # 移除键名
-      VERSION=${VERSION##*"version :"}
-      # 获取版本
-      VERSION=${VERSION%%" ,"}
-      VERSION=$(trim $VERSION)
-      break
+      # 没有传repo则package文件为当前目录所有
+      PKG_PATH="./package.json"
+    else
+      PKG_PATH="${REPO}/package.json"
     fi
-  done < package.json
+    
+    # 自定义version为空时抓取版本
+    while read line
+    do
+      # 抓取定义version行文本
+      if [[ ${line} = *"version"* ]]
+      then
+        # 移除双引号
+        VERSION=${line//\"/ }
+        # 移除键名
+        VERSION=${VERSION##*"version :"}
+        # 获取版本
+        VERSION=${VERSION%%" ,"}
+        VERSION=$(trim $VERSION)
+        break
+      fi
+    done < $PKG_PATH
+  fi
   
   # 输出文件路径，默认“v版本.md”
   OUTPUT="${OUTPUT_DIR}/v${VERSION}.md"
   
   shouldFouceResolve
   
-  GIT_PAGER=$(git -C "${REPO}" log "$TARGET..$ORIGIN" --no-merges --reverse --format="${LOG_FORMAT}")
+  GIT_PAGER=$(git -C "${REPO}" log "$TARGET_BRANCH..$ORIGIN_BRANCH" --no-merges --reverse --format="${LOG_FORMAT}")
   (
     if [ ! -z "$GIT_PAGER" ]
     then
@@ -220,7 +257,7 @@ then
         let typeIndex++
       done
     else
-      echo "${DIFF}版本无差异"
+      echo "${TARGET_BRANCH}..${ORIGIN_BRANCH} 版本无差异"
     fi
   ) > $OUTPUT
   # ) | less -R

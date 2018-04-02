@@ -1,8 +1,7 @@
 # 生成 Git 日志
 自动生成git commit记录用以统计个人项目周报，全组项目周报，版本差异记录等
-<p align="center">
- <img src="https://img.shields.io/badge/npm-v1.0.2-orange.svg" />
-</p>
+
+![](https://img.shields.io/badge/npm-v1.0.2-orange.svg)
 
  [GitHub](https://github.com/GiantZero-x/proj-gen-git-log)
 
@@ -11,9 +10,9 @@
 
  Or
 
- `cd ~/Downloads && git clone git@github.com:GiantZero-x/gen-git-log.git && ./gen-git-log && chmod +x gen-log.sh`	
- 
- * 执行`./gen-log.sh -r <path-to-your-repository>`	
+ `cd ~/Downloads && git clone git@github.com:GiantZero-x/gen-git-log.git && ./gen-git-log && chmod +x gen-log.sh`
+
+ * 执行`./gen-log.sh -r <path-to-your-repository>`
  * 自动在`log`文件夹(若无会自动创建)下生成{user}.md文件
 
 ### 示例
