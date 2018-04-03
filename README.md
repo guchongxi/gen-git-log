@@ -11,24 +11,46 @@
   * 版本比对模式可指定比对版本(源版本/HEAD:默认、目标版本/最新版本:默认)
 
 ### 配置项
-  * -m  生成模式  默认：无(周报)，可选：branch(分支比对)、tag(标签比对)
-  * -a  贡献者；默认：`git` 全局配置 `name`；可传 '' 表示所有贡献者
-  * -s  起始日期  默认：上周一，格式：2018-01-01
-  * -u  终止日期  默认：当天，格式：2018-01-01
-  * -S  源分支/标签 默认：无，比对模式：当前分支/最近标签
-  * -T  目标分支/标签 默认：无，比对模式：当前分支/当前HEAD
-  * -r  Git 仓库本地路径  默认：当前目录
-  * -v  版本号  默认：无，比对模式：仓库路径下 package.json 中 VERSION 字段值
-  * -f  覆盖文件  默认：否，不需要传值
-  * -t  log 首行为生成日期  默认：否，不需要传值
-  * -d  log 输出目录 默认：仓库路径下 log 文件夹
+  * `-m`： 生成模式  默认：无(周报)，可选：branch(分支比对)、tag(标签比对)
+  * `-a`： 贡献者；默认：`git` 全局配置 `name`；可传 '' 表示所有贡献者
+  * `-s`： 起始日期  默认：上周一，格式：2018-01-01
+  * `-u`： 终止日期  默认：当天，格式：2018-01-01
+  * `-S`： 源分支/标签 默认：无，比对模式：当前分支/最近标签
+  * `-T`： 目标分支/标签 默认：无，比对模式：当前分支/当前HEAD
+  * `-r`： Git 仓库本地路径  默认：当前目录
+  * `-v`： 版本号  默认：无，比对模式：仓库路径下 package.json 中 VERSION 字段值
+  * `-f`： 覆盖文件  默认：否，不需要传值
+  * `-t`： log 首行为生成日期  默认：否，不需要传值
+  * `-d`： log 输出目录 默认：仓库路径下 log 文件夹
 
 ### 使用
- `npm install gen-git-log -D`
+#### 周报
+```bash
+➜ ~ npm install gen-git-log -g
 
- Or
+➜ ~ git-log -r <project-path>
+```
 
- `cd ~/Downloads && git clone git@github.com:guchongxi/gen-git-log.git && ./gen-git-log && chmod +x gen-log.sh`
+ #### 项目版本
+ ```bash
+➜ ~ npm install gen-git-log -D
+
+# package.json
+{
+  ...
+  "scripts": {
+    "log": "git-log -t -m tag",
+  },
+  ...
+}
+
+➜ ~ npm run log
+ ```
+
+ #### 非 Node 环境
+```bash
+➜ ~ cd ~/Downloads && git clone git@github.com:guchongxi/gen-git-log.git && ./gen-git-log && chmod +x gen-log.sh
+```
 
  * 执行`./gen-log.sh -r <path-to-your-repository>`
  * 自动在`log`文件夹(若无会自动创建)下生成{user}.md文件
