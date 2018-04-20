@@ -54,6 +54,22 @@ printTimeIfNeed(){
   if [ $PRINT_TIME -eq 1 ]
   then
     echo "> Generated on ${NOW} By [Gen-Git-Log](https://www.npmjs.com/package/gen-git-log)\n"
+
+    case $MODE in
+      branch)
+      TITLE="${TARGET}...${SOURCE}"
+      ;;
+      tag)
+      TITLE="${TARGET}...v$(getVersion)"
+      ;;
+    esac
+
+    # 匹配模式
+    if [ ! -z $TITLE ]
+    then
+      TITLE="## [${TITLE}](http://${REMOTE}/compare/${TITLE})"
+      echo $TITLE
+    fi
   fi
 }
 # function，获取版本
@@ -372,8 +388,6 @@ case $MODE in
             done
           fi
         done
-
-        echo "## [v$(getVersion)](http://${REMOTE}/compare/${TARGET}...${SOURCE})"
 
         # 处理数据
         typeIndex=0
