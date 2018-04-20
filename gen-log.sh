@@ -124,7 +124,8 @@ genSingleTagLog() {
       else
         TIT="## [${SOU}](http://${REMOTE}/compare/${TAR}...${SOU})"
       fi
-
+      echo
+      echo
       echo "${TIT} ($(git -C "${REPO}" log -1 --format=%ad --date=short $SOU))"
     fi
 
