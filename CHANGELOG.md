@@ -1,16 +1,21 @@
 
 
-## [v1.1.4](http://http://github.com/guchongxi/gen-git-log/compare/v1.1.1...v1.1.4) (2018-04-25)
+## [v1.1.5](http://github.com/guchongxi/gen-git-log/compare/v1.1.4...v1.1.5) (2018-04-25)
+#### 修改
+* 远程地址组装错误([e8aee12](http://github.com/guchongxi/gen-git-log/commit/e8aee127277671b82d4346ec6fb4cba8b4622cf4))@gucx
+
+
+## [v1.1.4](http://github.com/guchongxi/gen-git-log/compare/v1.1.1...v1.1.4) (2018-04-25)
 #### 修改
 * 使用http(s)协议检出项目生产hash链接不对([c92c8a0](http://github.com/guchongxi/gen-git-log/commit/c92c8a07c72ff62acff82b8c24bfb7500e36be27))@gucx
-* 指定仓库时默认作者应取指定仓库配置作者名([a30656e](http://github.com/guchongxi/gen-git-log/commit/a30656ea6bfe50d6e42bbab4df0d2e4dcf69954e))@gucx
+* 指定仓库时默认作者应取指定仓库配置作者名([01e9b8e](http://github.com/guchongxi/gen-git-log/commit/01e9b8e5a84b4e2307f3767a893ef2f113384b31))@gucx
 
 #### 其他
 * 提升发布npm包版本为1.1.2([2084884](http://github.com/guchongxi/gen-git-log/commit/20848844264539aed166a036bd8919c4f7fe94a5))@gucx
 * changelog段落间间隔两行([fcc6687](http://github.com/guchongxi/gen-git-log/commit/fcc66874e4d8b4bd2697019fa6e8fe0d49c3905c))@gucx
 
 
-## [v1.1.1](http://http://github.com/guchongxi/gen-git-log/compare/v1.0.2...v1.1.1) (2018-04-21)
+## [v1.1.1](http://github.com/guchongxi/gen-git-log/compare/v1.0.2...v1.1.1) (2018-04-21)
 #### 新增
 * 增加tag对比([b1e5a67](http://github.com/guchongxi/gen-git-log/commit/b1e5a67b4422b8261cea4ac0c7c750686afeb763))@gucx
 * 增加changelog模式([3af39b2](http://github.com/guchongxi/gen-git-log/commit/3af39b209802737bec5089140f35e87ddca43971))@gucx
@@ -29,7 +34,7 @@
 * 增加关键词([0e7d770](http://github.com/guchongxi/gen-git-log/commit/0e7d77067d8ab7d457a5c5d4f032b14cfabe83bb))@gucx
 
 
-## [v1.0.2](http://http://github.com/guchongxi/gen-git-log/compare/v1.0.0...v1.0.2) (2018-03-08)
+## [v1.0.2](http://github.com/guchongxi/gen-git-log/compare/v1.0.0...v1.0.2) (2018-03-08)
 #### 新增
 * 修改输出格式，增加commit远程链接([5266bc4](http://github.com/guchongxi/gen-git-log/commit/5266bc430fc0a5b0198f9e3ea299b4a42c52e6db))@gucx
 
@@ -39,7 +44,7 @@
 * updatereadme([91d4256](http://github.com/guchongxi/gen-git-log/commit/91d4256467fac1ca3df2f69aa7306bbd876889bb))@gucx
 
 
-## [v1.0.0](http://http://github.com/guchongxi/gen-git-log/compare/edf3a1...v1.0.0) (2018-03-05)
+## [v1.0.0](http://github.com/guchongxi/gen-git-log/compare/edf3a1...v1.0.0) (2018-03-05)
 #### 新增
 * init([b55b3f3](http://github.com/guchongxi/gen-git-log/commit/b55b3f3f8b30984719794555b19a8ddd0b9fe838))@gucx
 

@@ -70,7 +70,7 @@ printTimeIfNeed(){
     # 匹配模式
     if [ ! -z $TITLE ]
     then
-      TITLE="## [${TITLE}](http://${REMOTE}/compare/${TITLE})"
+      TITLE="## [${TITLE}](${REMOTE}/compare/${TITLE})"
       echo $TITLE
     fi
   fi
@@ -122,9 +122,9 @@ genSingleTagLog() {
       if [ $SOU = HEAD ]
       then
         # 如果是与最新HEAD对比则将HEAD设为version
-        TIT="## [v$(getVersion)](http://${REMOTE}/compare/${TAR}...v$(getVersion))"
+        TIT="## [v$(getVersion)](${REMOTE}/compare/${TAR}...v$(getVersion))"
       else
-        TIT="## [${SOU}](http://${REMOTE}/compare/${TAR}...${SOU})"
+        TIT="## [${SOU}](${REMOTE}/compare/${TAR}...${SOU})"
       fi
       echo
       echo
