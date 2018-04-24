@@ -15,8 +15,6 @@
 TYPE_MAP=(feat fix refactor style docs chore)
 # commit 类型 值
 TYPE_TITLE_MAP=(新增 修改 重构 样式 文档 其他)
-# 作者
-AUTHOR=$(git config user.name)
 # 当前日期+时间
 NOW=$(date "+%F %H:%M")
 # 起始日期
@@ -29,16 +27,20 @@ FOUCE=0
 PRINT_TIME=0
 # 输出目录
 OUTPUT_DIR="log"
+# 是否设置作者， 默认没有
+HAS_SET_AUTHOR=0
 
-# function，去除字符串两头空格
+# function，去除字符串所有空格
 trim() {
   trimmed=$1
-  trimmed=${trimmed%% }
-  trimmed=${trimmed## }
-  trimmed=${trimmed## }
-
-  echo $trimmed
+  # https://blog.csdn.net/dongwuming/article/details/50605911
+  # 从变量$string的结尾, 删除最长匹配$substring的子串
+  # trimmed=${trimmed%% }
+  # 从变量$string的开头, 删除最长匹配$substring的子串
+  # trimmed=${trimmed## }
+  echo ${trimmed// /}
 }
+
 # function，是否强制生成文件
 shouldFouceResolve() {
   # 输出文件已存在 & 不强制生成 则提示并退出
@@ -205,6 +207,8 @@ do
     a)
       # 作者
       AUTHOR=$OPTARG
+      # 已设置作者
+      HAS_SET_AUTHOR=1
     ;;
     s)
       # 起始日期
@@ -269,12 +273,27 @@ do
   esac
 done
 
+# 判断是否需要设置默认作者
+if [ $HAS_SET_AUTHOR -eq 0 ]
+then
+  # 没有设置过则使用默认作者
+  AUTHOR=$(git -C "${REPO}" config user.name)
+fi
+
 # 获取远程仓库地址
 REMOTE=$(git -C "${REPO}" remote -v)
 REMOTE=${REMOTE#*git@}
-REMOTE=${REMOTE%%.git*}
-REMOTE=${REMOTE/://}
+if [ ${REMOTE:0:6}x = "origin"x ]
+then
+# 如果是origin开头认为是http(s)协议checkout下来的，否则是ssh
+REMOTE=${REMOTE#*origin}
+REMOTE=${REMOTE%%.git *}
+else
+REMOTE=${REMOTE%%.git *}
+REMOTE="http://${REMOTE/://}"
+fi
 
+REMOTE=$(trim $REMOTE)
 # 格式化 https://ruby-china.org/topics/939
 # %H:   commit hash
 # %h:   短commit hash
@@ -284,7 +303,7 @@ REMOTE=${REMOTE/://}
 # %d:   ref名称
 # %s:   commit信息标题
 # %cd:  提交日期 (--date= 制定的格式)
-FORMAT_DEFAULT=" * %s ([%h](http://${REMOTE}/commit/%H)) "
+FORMAT_DEFAULT=" * %s ([%h](${REMOTE}/commit/%H)) "
 
 # 判断是否指定仓库路径重写输出目录路径
 if [ -z $REPO ]
