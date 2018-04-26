@@ -1,16 +1,6 @@
 
 #!/bin/bash
 
-# 自动生成 Git 日志脚本
-# feature
-# * 可生成(本人:默认/其他人/团队)(任意时间段/上周:默认)(任意项目/当前项目:默认)日志
-# * 可控制是否覆盖已有文件
-# * 可控制是否显示生成时间
-# * 可指定分支比对和版本比对模式
-# * 比对模式可(指定/读取package.json：默认)版本生成对应文件名
-# * 分支比对模式可指定比对分支(当前:默认)
-# * 版本比对模式可指定比对版本(源版本/HEAD:默认、目标版本/最新版本:默认)
-
 # commit 类型 键
 TYPE_MAP=(feat fix refactor style docs chore)
 # commit 类型 值
@@ -21,27 +11,31 @@ NOW=$(date "+%F %H:%M")
 SINCE="last.Monday"
 # 终止日期
 UNTIL=$(date +%F)
-# 是否覆盖文件
+# 是否覆盖文件，默认否
 FOUCE=0
-# 首行是否为生成日期
+# 首行是否为生成日期，默认否
 PRINT_TIME=0
 # 输出目录
 OUTPUT_DIR="log"
-# 是否设置作者， 默认没有
+# 是否已设置作者， 默认否
 HAS_SET_AUTHOR=0
 
-# function，去除字符串所有空格
+# function，去除字符串两头空格
 trim() {
   trimmed=$1
   # https://blog.csdn.net/dongwuming/article/details/50605911
   # 从变量$string的结尾, 删除最长匹配$substring的子串
-  # trimmed=${trimmed%% }
+  trimmed=${trimmed%% }
   # 从变量$string的开头, 删除最长匹配$substring的子串
-  # trimmed=${trimmed## }
-  echo ${trimmed// /}
+  trimmed=${trimmed## }
+  # TODO 首部空格无法全部移除
+  trimmed=${trimmed## }
+  echo $trimmed
+  # 移除全部空格
+  # echo ${trimmed// /}
 }
 
-# function，是否强制生成文件
+# function，是否应该强制生成文件
 shouldFouceResolve() {
   # 输出文件已存在 & 不强制生成 则提示并退出
   if [ -e $OUTPUT -a $FOUCE -eq 0 ]
@@ -52,24 +46,26 @@ shouldFouceResolve() {
     exit 1
   fi
 }
-# function，首行是否输出生成日期
-printTimeIfNeed(){
+# function，首行是否应该输出生成日期
+shouldPrintTime(){
   if [ $PRINT_TIME -eq 1 ]
   then
     echo "> Generated on ${NOW} By [Gen-Git-Log](https://www.npmjs.com/package/gen-git-log)\n"
 
     case $MODE in
       branch)
+      # 分支模式
       TITLE="${TARGET}...${SOURCE}"
       ;;
       tag)
+      # 标签模式
       TITLE="${TARGET}...v$(getVersion)"
       ;;
     esac
 
-    # 匹配模式
     if [ ! -z $TITLE ]
     then
+    # 如果TITLE赋值则组装输出
       TITLE="## [${TITLE}](${REMOTE}/compare/${TITLE})"
       echo $TITLE
     fi
@@ -196,6 +192,33 @@ genSingleTagLog() {
     fi
 }
 
+# 生成tag
+genTagLog() {
+    LOG_FORMAT="$FORMAT_DEFAULT @%ae"
+
+    OUTPUT=$(generateOutPutPath)
+
+    shouldFouceResolve
+
+    # 获取最新标签
+    LASTEST_TAG=$(git -C "${REPO}" describe --tags `git -C "${REPO}" rev-list --tags --max-count=1`)
+
+    if [ -z $SOURCE ]
+    then
+      SOURCE="HEAD"
+    fi
+    if [ -z $TARGET ]
+    then
+      TARGET=$LASTEST_TAG
+    fi
+
+
+    (
+      shouldPrintTime
+      genSingleTagLog $SOURCE $TARGET 0
+  ) > $OUTPUT
+}
+
 # 传参覆盖默认值
 while getopts "m:a:s:u:S:T:r:v:ftd:h" arg
 do
@@ -264,11 +287,11 @@ do
     -t  log 首行为生成日期  默认：否，不需要传值
     -d  log 输出目录 默认：仓库路径下 log 文件夹
       "
-      exit 1
+      exit 2
     ;;
     ?)
       echo "unknown argument"
-      exit 1
+      exit 3
     ;;
   esac
 done
@@ -336,6 +359,9 @@ else
   OUTPUT="${OUTPUT_DIR}/${AUTHOR}.md"
 fi
 
+ # 默认分支为当前分支
+CURRENT_BRANCH=$(git -C "${REPO}" rev-parse --abbrev-ref HEAD)
+
 case $MODE in
   branch)
     LOG_FORMAT="$FORMAT_DEFAULT @%ae"
@@ -343,9 +369,6 @@ case $MODE in
     OUTPUT=$(generateOutPutPath)
 
     shouldFouceResolve
-
-    # 默认分支为当前分支
-    CURRENT_BRANCH=$(git -C "${REPO}" rev-parse --abbrev-ref HEAD)
 
     if [ -z $SOURCE ]
     then
@@ -360,7 +383,7 @@ case $MODE in
     GIT_PAGER=$(git -C "${REPO}" log "$SOURCE...$TARGET" --no-merges --reverse --format="${LOG_FORMAT}")
 
     (
-      printTimeIfNeed
+      shouldPrintTime
 
       if [ ! -z "$GIT_PAGER" ]
       then
@@ -427,29 +450,7 @@ case $MODE in
     ) > $OUTPUT
   ;;
   tag)
-    LOG_FORMAT="$FORMAT_DEFAULT @%ae"
-
-    OUTPUT=$(generateOutPutPath)
-
-    shouldFouceResolve
-
-    # 获取最新标签
-    LASTEST_TAG=$(git -C "${REPO}" describe --tags `git -C "${REPO}" rev-list --tags --max-count=1`)
-
-    if [ -z $SOURCE ]
-    then
-      SOURCE="HEAD"
-    fi
-    if [ -z $TARGET ]
-    then
-      TARGET=$LASTEST_TAG
-    fi
-
-
-    (
-      printTimeIfNeed
-      genSingleTagLog $SOURCE $TARGET 0
-    ) > $OUTPUT
+    genTagLog
   ;;
   changelog)
     if [ -z $REPO ]
@@ -499,11 +500,54 @@ case $MODE in
       genSingleTagLog $FIRST_TAG $LAST_TAG
     ) > $OUTPUT
   ;;
+  publish)
+    # 发布模式
+    # 站在要发布分支上
+    # 同步代码
+    # 修改version
+    # 执行该命令
+    # 根据版本号生成log文件
+    genTagLog
+    # git amand合并commit
+    git -C "${REPO}" add --all
+    git -C "${REPO}" commit -m "chore: Publish version $(getVersion)"
+    # 用户确认目标分支 https://ask.helplib.com/bash/post_113951
+    BRANCH="master"
+    read -p"Target branch: master. (y: confirm; n: enter the target branch; c: cancel) " -n 1 -r
+    echo "\n"
+
+    case $REPLY in
+      y)
+      ;;
+      n)
+        read -p"Please enter the target branch (For example, master): " -r
+        BRANCH=$REPLY
+      ;;
+      *)
+        echo "canceled"
+        exit 5
+      ;;
+    esac
+    # 切到branch
+    git -C "${REPO}" checkout $BRANCH
+    # 合并分支到master
+    git -C "${REPO}" merge $CURRENT_BRANCH
+    # 生成tag
+    git -C "${REPO}" tag -a "v$(getVersion)" -m ""
+    # 推送tag
+    git -C "${REPO}" push origin --tags
+    # 推送代码
+    git -C "${REPO}" push origin
+    # 复制release note值
+    pbcopy < $OUTPUT
+    # 完成
+    echo "Publish success, Release note has been copied!"
+  ;;
   *)
     shouldFouceResolve
 
     (
-      printTimeIfNeed
+      shouldPrintTime
       # 先根据起始及终止时间查找符合条件的log并且把日期格式化后输出
       # 之后遍历所有输出的日期，在根据日期查询当天内的log进行打印
       git -C "${REPO}" log --since="${SINCE}" --until="${UNTIL}" --format="%cd" --date=short | sort -u | while read DATE ; do
