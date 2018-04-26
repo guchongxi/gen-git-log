@@ -508,8 +508,9 @@ case $MODE in
     # 执行该命令
     # 根据版本号生成log文件
     genTagLog
-    # git amand合并commit
+    # 添加所有文件到暂存区
     git -C "${REPO}" add --all
+    # 生成commit
     git -C "${REPO}" commit -m "chore: Publish version $(getVersion)"
     # 用户确认目标分支 https://ask.helplib.com/bash/post_113951
     BRANCH="master"
@@ -530,7 +531,7 @@ case $MODE in
     esac
     # 切到branch
     git -C "${REPO}" checkout $BRANCH
-    # 合并分支到master
+    # 合并分支到branch
     git -C "${REPO}" merge $CURRENT_BRANCH
     # 生成tag
     git -C "${REPO}" tag -a "v$(getVersion)" -m ""
@@ -538,7 +539,7 @@ case $MODE in
     git -C "${REPO}" push origin --tags
     # 推送代码
     git -C "${REPO}" push origin
-    # 复制release note值
+    # 复制release note到剪切板
     pbcopy < $OUTPUT
     # 完成
     echo "Publish success, Release note has been copied!"
