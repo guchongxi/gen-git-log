@@ -212,11 +212,16 @@ genTagLog() {
       TARGET=$LASTEST_TAG
     fi
 
-
-    (
-      shouldPrintTime
-      genSingleTagLog $SOURCE $TARGET 0
-  ) > $OUTPUT
+    # 如果传参为 copy 则将结果输出至剪切板
+    if [ "$1"x = "copy"x ]
+    then
+      genSingleTagLog $SOURCE $TARGET 0 | pbcopy
+    else
+      (
+        shouldPrintTime
+        genSingleTagLog $SOURCE $TARGET 0
+      ) > $OUTPUT
+    fi
 }
 
 # 传参覆盖默认值
@@ -512,37 +517,45 @@ case $MODE in
     git -C "${REPO}" add --all
     # 生成commit
     git -C "${REPO}" commit -m "chore: Publish version $(getVersion)"
-    # 用户确认目标分支 https://ask.helplib.com/bash/post_113951
-    BRANCH="master"
-    read -p"Target branch: master. (y: confirm; n: enter the target branch; c: cancel) " -n 1 -r
-    echo "\n"
 
-    case $REPLY in
-      y)
-      ;;
-      n)
-        read -p"Please enter the target branch (For example, master): " -r
-        BRANCH=$REPLY
-      ;;
-      *)
-        echo "canceled"
-        exit 5
-      ;;
-    esac
+
+    # ***********目前大部分项目不允许使用命令行操作master代码，以下代码暂时废弃************** #
+    # 用户确认目标分支 https://ask.helplib.com/bash/post_113951
+    # BRANCH="master"
+    # read -p"Target branch: master. (y: confirm; n: enter the target branch; c: cancel) " -n 1 -r
+    # echo "\n"
+
+    # case $REPLY in
+    #   y)
+    #   ;;
+    #   n)
+    #     read -p"Please enter the target branch (For example, master): " -r
+    #     BRANCH=$REPLY
+    #   ;;
+    #   *)
+    #     echo "canceled"
+    #     exit 5
+    #   ;;
+    # esac
     # 切到branch
-    git -C "${REPO}" checkout $BRANCH
+    # git -C "${REPO}" checkout $BRANCH
     # 合并分支到branch
-    git -C "${REPO}" merge $CURRENT_BRANCH
+    # git -C "${REPO}" merge $CURRENT_BRANCH
     # 生成tag
-    git -C "${REPO}" tag -a "v$(getVersion)" -m ""
+    # git -C "${REPO}" tag -a "v$(getVersion)" -m ""
     # 推送tag
-    git -C "${REPO}" push origin --tags
+    # git -C "${REPO}" push origin --tags
     # 推送代码
     git -C "${REPO}" push origin
     # 复制release note到剪切板
     pbcopy < $OUTPUT
     # 完成
-    echo "Publish success, Release note has been copied!"
+    echo "Push success, Release note has been copied!"
+  ;;
+  copy)
+    genTagLog "copy"
+    echo "Log has been copied to the clipboard"
+    exit 6
   ;;
   *)
     shouldFouceResolve
