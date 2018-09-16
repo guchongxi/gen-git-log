@@ -1,6 +1,6 @@
 {
   "name": "gen-git-log",
-  "version": "1.2.1",
+  "version": "1.1.1",
   "description": "自动生成git commit记录用以统计个人项目周报，全组项目周报，版本差异记录等 [GitHub](https://github.com/GiantZero-x/proj-gen-git-log)",
   "keywords": [
     "git",
@@ -22,14 +22,21 @@
   },
   "homepage": "https://github.com/GiantZero-x/proj-gen-git-log#readme",
   "bin": {
-    "git-log": "./gen-log.sh"
+    "git-log": "bin/gen-log.sh",
+    "gen-log": "bin/index"
   },
   "dependencies": {
     "assert": "^1.4.1",
+    "commander": "^2.18.0",
     "git-remote-origin-url": "^2.0.0",
     "git-repo-info": "^2.0.0",
     "git-rev-sync": "^1.11.1",
     "mocha": "^5.1.1",
+    "update-notifier": "^2.5.0",
     "simple-git": "^1.92.0"
+  },
+  "devDependencies": {
+    "babel-eslint": "^8.2.6",
+    "eslint": "^4.19.1"
   }
 }
