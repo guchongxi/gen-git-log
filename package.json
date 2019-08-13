@@ -32,7 +32,6 @@
     "git-repo-info": "^2.0.0",
     "git-rev-sync": "^1.11.1",
     "mocha": "^5.1.1",
-    "update-notifier": "^2.5.0",
     "simple-git": "^1.92.0"
   },
   "devDependencies": {
