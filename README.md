@@ -126,7 +126,7 @@
 ➜ demo-project git:(master): git-log -r <path-to-your-repository> -a someone -s 2018-01-01 -u 2018-01-31 -d git-log -f
 ```
 ### 注意
- * `commit`分类要求所有`commit message`符合规范，及以`feat fix refactor style docs chore`开头，后紧跟`: `，然后是正文；例：`feat: 新增git-log`
+ * `commit`分类要求所有`commit message`符合规范，及以`feat fix refactor style docs chore build ci pref test`开头，后紧跟`: `，然后是正文；例：`feat: 新增git-log`
  * 生成版本差异建议先**修改`package.json`版本号**
  * 尽可能**保证功能分支commit message精简扼要**
  * 分支对比模式需要两个分支都在本地存在

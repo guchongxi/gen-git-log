@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # commit 类型 键
-TYPE_MAP=(feat fix refactor style docs chore)
+TYPE_MAP=(feat fix refactor style docs chore build ci pref test)
 # commit 类型 值
-TYPE_TITLE_MAP=(新增 修改 重构 样式 文档 其他)
+TYPE_TITLE_MAP=(新增 修改 重构 样式 文档 其他 构建 持续集成 优化 测试)
 # 当前日期+时间
 NOW=$(date "+%F %H:%M")
 # 起始日期
