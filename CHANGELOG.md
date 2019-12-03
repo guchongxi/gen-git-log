@@ -1,5 +1,17 @@
 # GEN-GIT-LOG Changelog
 
+## [1.4.0](https://github.com/GiantZero-x/proj-gen-git-log/compare/v1.3.0...v1.4.0) (2019-12-03)
+
+
+### Features
+
+* 支持 output 类型 ([21443ff](https://github.com/GiantZero-x/proj-gen-git-log/commit/21443ff1a92becad6f34a155f356f92c4f2fa71c))
+
+
+### Bug Fixes
+
+* 不需要单独 echo 结果 ([5a3e772](https://github.com/GiantZero-x/proj-gen-git-log/commit/5a3e772b6f39d22442c37ab643f5ed923d209311))
+
 ## [1.3.0](https://github.com/GiantZero-x/proj-gen-git-log/compare/v1.2.4...v1.3.0) (2019-12-03)
 
 
