@@ -197,9 +197,9 @@ genTagLog() {
     # 如果传参为 copy 则将结果输出至剪切板
     genSingleTagLog $SOURCE $TARGET 0 | pbcopy
     ;;
-  output)
-    # 如果传参为 output 则将结果直接输出
-    genSingleTagLog $SOURCE $TARGET 0
+  release-note)
+    # 如果传参为 release-note 则将结果直接输出
+    genSingleTagLog $SOURCE master 0
     ;;
   *)
     (
@@ -522,8 +522,8 @@ copy)
   echo "Log has been copied to the clipboard"
   exit 6
   ;;
-output)
-  genTagLog "output"
+release-note)
+  genTagLog "release-note"
   exit 0
   ;;
 *)
