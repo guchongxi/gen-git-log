@@ -199,7 +199,7 @@ genTagLog() {
     ;;
   output)
     # 如果传参为 output 则将结果直接输出
-    echo $(genSingleTagLog $SOURCE $TARGET 0)
+    genSingleTagLog $SOURCE $TARGET 0
     ;;
   *)
     (
