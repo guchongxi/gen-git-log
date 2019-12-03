@@ -192,15 +192,22 @@ genTagLog() {
     TARGET=$LASTEST_TAG
   fi
 
-  # 如果传参为 copy 则将结果输出至剪切板
-  if [ "$1"x = "copy"x ]; then
+  case $1 in
+  copy)
+    # 如果传参为 copy 则将结果输出至剪切板
     genSingleTagLog $SOURCE $TARGET 0 | pbcopy
-  else
+    ;;
+  output)
+    # 如果传参为 output 则将结果直接输出
+    echo $(genSingleTagLog $SOURCE $TARGET 0)
+    ;;
+  *)
     (
       shouldPrintTime
       genSingleTagLog $SOURCE $TARGET 0
     ) >$OUTPUT
-  fi
+    ;;
+  esac
 }
 
 # 传参覆盖默认值
@@ -514,6 +521,10 @@ copy)
   genTagLog "copy"
   echo "Log has been copied to the clipboard"
   exit 6
+  ;;
+output)
+  genTagLog "output"
+  exit 0
   ;;
 *)
   shouldFouceResolve
