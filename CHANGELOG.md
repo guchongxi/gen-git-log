@@ -1,5 +1,13 @@
 # GEN-GIT-LOG Changelog
 
+### [1.4.1](https://github.com/GiantZero-x/proj-gen-git-log/compare/v1.4.0...v1.4.1) (2019-12-03)
+
+
+### Bug Fixes
+
+* 发布命令需带仓库地址 ([3415e8e](https://github.com/GiantZero-x/proj-gen-git-log/commit/3415e8e59c0a1056375691c4ffd596a1a5d1e7e5))
+* 修改 output 为 release-note，指定比对 master ([c881ef7](https://github.com/GiantZero-x/proj-gen-git-log/commit/c881ef71113045f1dd474b38c2c91db6d5e58994))
+
 ## [1.4.0](https://github.com/GiantZero-x/proj-gen-git-log/compare/v1.3.0...v1.4.0) (2019-12-03)
 
 
