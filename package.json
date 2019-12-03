@@ -9,7 +9,7 @@
   ],
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "release": "standard-version"
   },
   "repository": {
     "type": "git",
@@ -23,5 +23,14 @@
   "homepage": "https://github.com/GiantZero-x/proj-gen-git-log#readme",
   "bin": {
     "git-log": "./gen-log.sh"
+  },
+  "standard-version": {
+    "scripts": {
+      "posttag": "git push --follow-tags origin master && npm publish"
+    },
+    "changelogHeader": "# GEN-GIT-LOG Changelog\n"
+  },
+  "devDependencies": {
+    "standard-version": "^7.0.1"
   }
 }
