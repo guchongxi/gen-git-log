@@ -1,3 +1,12 @@
+# GEN-GIT-LOG Changelog
+
+## [1.3.0](https://github.com/GiantZero-x/proj-gen-git-log/compare/v1.2.4...v1.3.0) (2019-12-03)
+
+
+### Features
+
+* 增加版本发布脚本 ([bac2b9d](https://github.com/GiantZero-x/proj-gen-git-log/commit/bac2b9d14620461a19ca818d0716dfe0d2935829))
+
 
 
 ## [v1.1.5](http://github.com/guchongxi/gen-git-log/compare/v1.1.4...v1.1.5) (2018-04-25)
@@ -50,4 +59,3 @@
 
 #### 修改
 * 修复生成版本记录时重复问题([94e0f86](http://github.com/guchongxi/gen-git-log/commit/94e0f8696c3b026d1c183c2f9d863de25f286f81))@gucx
-
