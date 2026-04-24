@@ -533,7 +533,7 @@ release-note)
     shouldPrintTime
     # 先根据起始及终止时间查找符合条件的log并且把日期格式化后输出
     # 之后遍历所有输出的日期，在根据日期查询当天内的log进行打印
-    git -C "${REPO}" log --since="${SINCE}" --until="${UNTIL}" --format="%cd" --date=short | sort -u | while read DATE; do
+    git -C "${REPO}" log --since="${SINCE}" --until="${UNTIL}" --format="%cd" --date=short | sort -ru | while read DATE; do
       GIT_PAGER=$(git -C "${REPO}" log --no-merges --reverse --format="${LOG_FORMAT}" --since="${DATE} 00:00:00" --until="${DATE} 23:59:59" --author="${AUTHOR}")
       if [ ! -z "$GIT_PAGER" ]; then
         echo "[${DATE}]"
